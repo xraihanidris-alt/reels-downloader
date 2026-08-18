@@ -213,6 +213,10 @@
     </div>
 
     <script>
+        document.getElementById('reelUrl').addEventListener('input', () => {
+            document.getElementById('status').textContent = '';
+        });
+        
         async function downloadVideo() {
             const urlInput = document.getElementById('reelUrl');
             const downloadBtn = document.getElementById('downloadBtn');
