@@ -224,6 +224,12 @@
                 statusDiv.style.color = 'var(--ctp-red)';
                 statusDiv.textContent = 'Please paste a valid Instagram URL.';
                 return;
+	    }
+
+	    if (url.length > 200) {
+		statusDiv.style.color = 'var(--ctp-red)';
+		statusDiv.textContent = 'URL is too long. Please paste a link under 200 characters.';
+		return;
             }
 
             downloadBtn.disabled = true;
