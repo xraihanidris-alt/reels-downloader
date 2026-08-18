@@ -216,7 +216,7 @@
         document.getElementById('reelUrl').addEventListener('input', () => {
             document.getElementById('status').textContent = '';
         });
-        
+
         async function downloadVideo() {
             const urlInput = document.getElementById('reelUrl');
             const downloadBtn = document.getElementById('downloadBtn');
@@ -226,15 +226,22 @@
 
             if (!url) {
                 statusDiv.style.color = 'var(--ctp-red)';
-                statusDiv.textContent = 'Please paste a valid Instagram URL.';
+                statusDiv.textContent = 'URL cannot be empty. Please paste an Instagram link.';
                 return;
-	        }
+            }
+
+            const instagramPattern = /^https?:\/\/(www\.)?instagram\.com\/(reel|p|reels)\/[\w-]+\/?/i;
+            if (!instagramPattern.test(url)) {
+                statusDiv.style.color = 'var(--ctp-red)';
+                statusDiv.textContent = 'Please enter a valid Instagram Reel URL';
+                return;
+            }
 
             downloadBtn.disabled = true;
             downloadBtn.classList.add('loading');
             btnText.textContent = 'Processing...';
             statusDiv.style.color = 'var(--ctp-sapphire)';
-            statusDiv.textContent = 'Extracting video from Instagram...';
+            statusDiv.textContent = 'Downloading please wait...';
 
             try {
                 const response = await fetch('/download', {
@@ -250,18 +257,35 @@
                     throw new Error(errData.detail || 'Failed to download video.');
                 }
 
+                let userFilename = prompt("Enter a filename for your video:", "instagram_reel");
+
+                if (userFilename === null) {
+                    statusDiv.style.color = 'var(--ctp-overlay0)';
+                    statusDiv.textContent = 'Download cancelled.';
+                    return;
+                }
+
+                userFilename = userFilename.trim() || "instagram_reel";
+                if (!userFilename.endsWith('.mp4')) {
+                    userFilename += '.mp4';
+                }
+
                 const blob = await response.blob();
-                const downloadUrl = window.URL.createObjectURL(blob);
+                
+                const customBlob = new Blob([blob], { type: 'application/octet-stream' });
+                const downloadUrl = window.URL.createObjectURL(customBlob);
+                
                 const a = document.createElement('a');
                 a.href = downloadUrl;
-                a.download = 'instagram_reel.mp4';
+                a.download = userFilename;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
-                window.URL.revokeObjectURL(downloadUrl);
+                
+                setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 100);
 
                 statusDiv.style.color = 'var(--ctp-green)';
-                statusDiv.textContent = 'Success! Video download started.';
+                statusDiv.textContent = `Success! Saved as "${userFilename}".`;
             } catch (error) {
                 statusDiv.style.color = 'var(--ctp-red)';
                 statusDiv.textContent = error.message || 'An error occurred during download.';
