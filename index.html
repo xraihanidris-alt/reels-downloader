@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Reels Downloader</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Catppuccin Mocha Palette */
+        :root {
+            --ctp-base: #1e1e2e;
+            --ctp-mantle: #181825;
+            --ctp-surface0: #313244;
+            --ctp-surface1: #45475a;
+            --ctp-overlay0: #6c7086;
+            --ctp-text: #cdd6f4;
+            --ctp-subtext0: #a6adc8;
+            --ctp-mauve: #cba6f7;
+            --ctp-lavender: #b4befe;
+            --ctp-sapphire: #74c7ec;
+            --ctp-green: #a6e3a1;
+            --ctp-red: #f38ba8;
+            --ctp-crust: #11111b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top, #242438 0%, var(--ctp-crust) 100%);
+            color: var(--ctp-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(30, 30, 46, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 40px 32px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                        0 0 80px rgba(203, 166, 247, 0.05);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            transition: transform 0.3s ease;
+        }
+
+        .icon-header {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(203, 166, 247, 0.15), rgba(180, 190, 254, 0.05));
+            border: 1px solid rgba(203, 166, 247, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-header svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--ctp-mauve);
+        }
+
+        h1 {
+            color: var(--ctp-lavender);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        p.subtitle {
+            font-size: 14px;
+            color: var(--ctp-subtext0);
+            margin-bottom: 28px;
+            line-height: 1.4;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            border: 1.5px solid var(--ctp-surface0);
+            border-radius: 12px;
+            background-color: var(--ctp-mantle);
+            color: var(--ctp-text);
+            font-size: 15px;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            outline: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--ctp-overlay0);
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--ctp-mauve);
+            box-shadow: 0 0 0 4px rgba(203, 166, 247, 0.15),
+                        0 4px 12px rgba(0, 0, 0, 0.2);
+            background-color: var(--ctp-base);
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--ctp-mauve) 0%, var(--ctp-lavender) 100%);
+            color: var(--ctp-crust);
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(203, 166, 247, 0.3);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .download-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(203, 166, 247, 0.4);
+        }
+
+        .download-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(203, 166, 247, 0.3);
+        }
+
+        .download-btn:disabled {
+            background: var(--ctp-surface0);
+            color: var(--ctp-overlay0);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.5;
+            word-wrap: break-word;
+            min-height: 20px;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Spinner Animation */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(17, 17, 27, 0.2);
+            border-top-color: var(--ctp-crust);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading .spinner {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="icon-header">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+        </div>
+
+        <h1>Reels Downloader</h1>
+        <p class="subtitle">Download high-quality Instagram Reels instantly</p>
+
+        <div class="input-group">
+            <input type="text" id="reelUrl" placeholder="Paste Instagram URL" maxlength="255" />
+        </div>
+
+        <button id="downloadBtn" class="download-btn" onclick="downloadVideo()">
+            <span class="spinner"></span>
+            <span id="btnText">Download Reel</span>
+        </button>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function downloadVideo() {
+            const urlInput = document.getElementById('reelUrl');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const btnText = document.getElementById('btnText');
+            const statusDiv = document.getElementById('status');
+            const url = urlInput.value.trim();
+
+            if (!url) {
+                statusDiv.style.color = 'var(--ctp-red)';
+                statusDiv.textContent = 'Please paste a valid Instagram URL.';
+                return;
+            }
+
+            downloadBtn.disabled = true;
+            downloadBtn.classList.add('loading');
+            btnText.textContent = 'Processing...';
+            statusDiv.style.color = 'var(--ctp-sapphire)';
+            statusDiv.textContent = 'Extracting video from Instagram...';
+
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || 'Failed to download video.');
+                }
+
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = 'instagram_reel.mp4';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+
+                statusDiv.style.color = 'var(--ctp-green)';
+                statusDiv.textContent = 'Success! Video download started.';
+            } catch (error) {
+                statusDiv.style.color = 'var(--ctp-red)';
+                statusDiv.textContent = error.message || 'An error occurred during download.';
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.classList.remove('loading');
+                btnText.textContent = 'Download Reel';
+            }
+        }
+    </script>
+</body>
+</html>
